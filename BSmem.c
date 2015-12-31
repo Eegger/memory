@@ -10,12 +10,13 @@ ReadAfterAllocateAndWrite(){
 	EFI_STATUS Status = 0;
 
 	//EFI_PHYSICAL_ADDRESS pages = 1157627904;//0x45000000
-    EFI_PHYSICAL_ADDRESS pages = 6442450944;//赋初始值为0x180000000，表示要操作内存的起始物理地址。
+    //EFI_PHYSICAL_ADDRESS pages = 6442450944;//赋初始值为0x180000000，表示要操作内存的起始物理地址。
+    EFI_PHYSICAL_ADDRESS pages = 4294967296;//赋初始值为0x100000000，表示要操作内存的起始物理地址。
 	//int NumberOfPage = 0;
 	int j = 0;
 	//allocate pages and write into all the pages
     //while(NumberOfPage<10){
-    while(pages<10737418240){//0x280000000，表示物理地址的最大范围。   
+    while(pages<6442450944){//0x180000000，表示物理地址的最大范围。   
 
 		//Allocate Address
     	Status = gBS->AllocatePages(AllocateAddress, EfiBootServicesData, 1, &pages);
@@ -45,39 +46,42 @@ ReadAfterAllocateAndWrite(){
     }
 
     Print(L"Allocate and write finished!\n");
+    Print(L"Test Address 0x100000000~0x180000000\n");
     //allocate pages and test
     //int NumberOfTest = 0;
     int k = 0;
-    int ReadWrongNumber = 0;
-
-    
-
+    //sint ReadWrongNumber = 0;
     int readTimes = 1;
-    EFI_PHYSICAL_ADDRESS ResultAddress = 0;
+    EFI_PHYSICAL_ADDRESS FirstAddress = 0;
+    EFI_PHYSICAL_ADDRESS LastAddress = 0;
     //while(NumberOfTest<10){
-    while(readTimes<=6){
+    while(readTimes<=60){
 
-        pages = 6442450944;//赋初始值为0x180000000，表示要内存的起始物理地址。
+        pages = 4294967296;//赋初始值为0x180000000，表示要内存的起始物理地址。
 
-        while(pages<10737418240){//0x280000000，表示物理地址的最大范围。  
+        while(pages<6442450944){//0x280000000，表示物理地址的最大范围。  
 
             if(Status == 0){
                 CHAR8* str;
                 str = (CHAR8*)pages;
+                
+                //BeginAddress
                 k = 0;
                 while(k<4096){
                     if(str[k] != ('A'+k%26)){
-                        ReadWrongNumber++;
-                        ResultAddress = pages+k+1;
-                        break;
+                        //ReadWrongNumber++;
+                        if(FirstAddress==0)
+                        FirstAddress = pages;
+
+                        LastAddress = pages;
+                        
+                       
                     }
-                    // else{
-                    //     Print(L"Read Test Str:%c\n", str[1]);
-                    // }
                     k++;
                 }
 
-           // Status = gBS->FreePages(pages,1);
+               
+
             }
             pages+=4096;
             // NumberOfTest++;
@@ -87,62 +91,29 @@ ReadAfterAllocateAndWrite(){
         Print(L"read %d times\n",readTimes);
         readTimes++;
 
-        if (ReadWrongNumber!=0)
+        Print(L"Test Result is Following:\n");
+
+        if (FirstAddress!=0)
         {
+            Print(L"FirstAddress 0x%lx\n",FirstAddress);
+            Print(L"LastAddress 0x%lx\n",LastAddress);
+            //Print(L"The Different times is %d\n",ReadWrongNumber);
+            
             break;
         }
+        else{
+            Print(L"Amazing!everything is right!");
+        }
+
     }
     
-    pages = 6442450944;//赋初始值为0x180000000，表示要内存的起始物理地址。
-    while(pages<10737418240){
+    pages = 4294967296;//赋初始值为0x180000000，表示要内存的起始物理地址。
+    while(pages<6442450944){
 
         Status = gBS->FreePages(pages,1);
         pages+=4096;
     }
 
-    //FreePages 
-    // while(NumberOfTest<10){
-
-    // 	Status = gBS->AllocatePages(AllocateAddress,EfiBootServicesData,1,&pagesForTest);
-    // 	if (Status == 0)
-    // 	{
-    // 		CHAR8* str;
-    //         str = (CHAR8*) pages;
-    //         k = 0;
-
-    //         Print(L"Test Str:%c\n", str[0]);
-
-    //         while(k<4096){
-
-    //         	if(str[k] != ('A'+k%26)){
-    //         		ReadWrongNumber++;
-    //         	}
-    //         	k++;
-    //         }
-
-    //         //Free the page which have been test!
-    //         Status = gBS->FreePages(pagesForTest,1);
-    // 	}
-    // 	else{
-    // 		Print(L"Read AllocateAddress failed!:%r %lx\n", Status, pagesForTest);
-    // 	}
-
-    // 	pagesForTest+=4096;
-    // 	NumberOfTest++;
-    // }
-
-    
-    //Print(L"After Read %d times!\n",(readTimes-1));
-
-    Print(L"Test Result is Following:\n");
-    if(ReadWrongNumber == 0){
-    	Print(L"Amazing!everything is right!");
-    }
-    else{
-        Print(L"ResultAddress %lx\n",ResultAddress);
-    	Print(L"The Different times is %d\n",ReadWrongNumber);
-    }
-    
 	return Status;
 }
 
