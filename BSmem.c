@@ -38,7 +38,7 @@ ReadAfterAllocateAndWrite(){
             //Status = gBS->FreePages(pages,1);
     	}
     	else{
-    		Print(L"AllocateAddress failed!:%r %lx\n", Status, pages);
+    		Print(L"\nAllocateAddress failed!:%r %lx\n", Status, pages);
     	}
 
     	pages+=4096;
@@ -46,6 +46,22 @@ ReadAfterAllocateAndWrite(){
     }
 
     Print(L"Allocate and write finished!\n");
+    Print(L"Address 0x100000000\n");
+    pages = 4294967296;
+    CHAR8* str;
+    str = (CHAR8*) pages;
+    j=1;
+    while(j<=520){
+
+        Print(L"%c ",str[j-1]);
+        if (j%26==0)
+        {
+            Print(L"\n");
+        }
+        j++;
+    }
+
+    
     Print(L"Test Address 0x100000000~0x180000000\n");
     //allocate pages and test
     //int NumberOfTest = 0;
@@ -74,31 +90,40 @@ ReadAfterAllocateAndWrite(){
                         FirstAddress = pages;
 
                         LastAddress = pages;
-                        
-                       
+
                     }
                     k++;
                 }
-
-               
-
             }
             pages+=4096;
             // NumberOfTest++;
         }
-
 
         Print(L"read %d times\n",readTimes);
         readTimes++;
 
         Print(L"Test Result is Following:\n");
 
+        FirstAddress = 4294967296;
         if (FirstAddress!=0)
         {
             Print(L"FirstAddress 0x%lx\n",FirstAddress);
             Print(L"LastAddress 0x%lx\n",LastAddress);
             //Print(L"The Different times is %d\n",ReadWrongNumber);
+           
+            CHAR8* str1;
             
+            str1 = (CHAR8*)FirstAddress;
+            k = 1;
+            while(k<=520){
+            
+                Print(L"%c ",str1[k-1]);
+                if(k%26==0){
+                    Print(L"\n");
+                }
+                k++;
+            }
+
             break;
         }
         else{
